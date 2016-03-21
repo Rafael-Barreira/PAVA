@@ -3,51 +3,30 @@ package ist.meic.pa;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtField;
+import javassist.CtMethod;
+import javassist.CtNewMethod;
+import javassist.NotFoundException;
+
 public class BoxingProfiler {
 	
 	//the name of another Java program and 
 	//the arguments that should be provided 
 	//to that program
-	public static void main (String[] args) {
-		//Receives class name and arguments for function
-		System.out.println("I'm in!");
-		String[] func_args = new String[args.length - 1];
-		
-		//loads func_args with arguments to be ran with the program
-		for(int i=1; i <= args.length; i++) {
-			func_args[i-1]=args[i];
-		}
-		//args[0]->NameOfFunction args[>0]->ArgsOfTheFunction
-		
-		try {
-			
-			Class c = Class.forName("ist.meic.pa"+args[0]);
-			Object func = c.newInstance();
-			Class[] argTypes = new Class[] { String[].class };
-			Method m = c.getMethod("ist.meic.pa"+args[0], argTypes);
-			m.invoke(func, args[1]);
-			
-		} catch(ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public static void main (String[] args) throws NotFoundException, CannotCompileException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		if (args.length != 2) {
+			System.err.println("Usage: <Class to Profile> <method>");
+			System.exit(1);
+			} else {
+				ClassPool pool = ClassPool.getDefault();
+				CtClass ctClass = pool.get(args[0]);
+				Class<?> rtClass = ctClass.toClass();
+				Method main = rtClass.getMethod("main", args.getClass());
+				String[] restArgs = new String[args.length - 2];
+				main.invoke(null, new Object[] { restArgs });
+			}
 	}
 }

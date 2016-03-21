@@ -1,4 +1,4 @@
-<project name="project" default="" basedir="C:\Users\Loureiro\Documents\LEIC\PAVA\project">
+<project name="project" default="jar" basedir="D:\Stuff\workspace\PAVA\PAVA">
 	<property name="src" location="src"/>
 	<property name="classes" location="classes"/>
 	
@@ -10,7 +10,7 @@
 	</target>
 	
 	<target name="compile" depends="init" description="compile the source">
-		<javac srcdir="${src}" destdir="${classes}"/>
+		<javac classpath="javassist.jar" srcdir="${src}" destdir="${classes}"/>
 	</target>
 	
 	<target name="clean" description="clean up">
@@ -25,6 +25,14 @@
 				</classpath>
 			</java>
 		</target>
+	
+	 <target name="jar">
+	        <jar destfile="Project1.jar" basedir="${classes}">
+	            <manifest>
+	                <attribute name="Main-Class" value="ist.meic.pa.BoxingProfiler"/>
+	            </manifest>
+	        </jar>
+	    </target>
 	
 </project>
 
