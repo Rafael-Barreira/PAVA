@@ -1,11 +1,11 @@
 import java.io.UnsupportedEncodingException;
 public class Test {
-	/*public static void main (String[] args)throws UnsupportedEncodingException {
+	public static void main (String[] args)throws UnsupportedEncodingException {
 		Integer x = 1;
 		x.intValue();
 		System.out.println("POOOOOOOOOOP");
 		lel();
-	}*/
+	}
 	
 	public static String lel()throws UnsupportedEncodingException{
 		String a = "2";

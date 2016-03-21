@@ -40,15 +40,18 @@ public class BoxingProfiler {
 			
 			/*Class<?> rtClass = ctClass.toClass();
 			Method main = rtClass.getMethod(args[1], args.getClass());*/
-			CtMethod method = ctClass.getDeclaredMethod("lel");
-			method.instrument(
+			CtMethod[] methods = ctClass.getDeclaredMethods();
+			for(int i = 0; i < methods.length; i++) {
+			methods[i].instrument(
 			        new ExprEditor() {
 			            public void edit(MethodCall m)
 			                          throws CannotCompileException
 			            {
 			                System.out.println(m.getClassName() + "." + m.getMethodName() + " " + m.getSignature());
+			                System.out.println("#######################");
 			            }
 			        });
+			}
 			/*String[] restArgs = new String[args.length - 2];
 			System.arraycopy(args, 2, restArgs, 0, restArgs.length);*/
 			//main.invoke(null, new Object[] { restArgs });
