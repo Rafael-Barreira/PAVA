@@ -28,20 +28,18 @@ public class BoxingProfiler {
 	}
 	
 	public static void main (String[] args)throws NotFoundException, CannotCompileException, IOException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException {
-		System.out.println("I'm in!");
-		if (args.length < 2) {
-			System.err.println("Usage: java Memoize <class> <method>");
+		if (args.length < 1) {
+			System.err.println("Usage: java Memoize <class>");
 			System.exit(1);
 		} else {
 			
 			ClassPool pool = ClassPool.getDefault();
 			CtClass ctClass = pool.getCtClass(args[0]);
-			//memoize(ctClass, ctClass.getMethods());
 			
-			/*Class<?> rtClass = ctClass.toClass();
-			Method main = rtClass.getMethod(args[1], args.getClass());*/
 			CtMethod[] methods = ctClass.getDeclaredMethods();
 			for(int i = 0; i < methods.length; i++) {
+				/*Indicates the fucntion your in and the atribiutes it receives*/
+				System.out.println(methods[i].getLongName());
 			methods[i].instrument(
 			        new ExprEditor() {
 			            public void edit(MethodCall m)
@@ -52,6 +50,12 @@ public class BoxingProfiler {
 			            }
 			        });
 			}
+			
+			/*FIXME*/ 
+			//memoize(ctClass, ctClass.getMethods());
+			
+			/*Class<?> rtClass = ctClass.toClass();
+			Method main = rtClass.getMethod(args[1], args.getClass());*/
 			/*String[] restArgs = new String[args.length - 2];
 			System.arraycopy(args, 2, restArgs, 0, restArgs.length);*/
 			//main.invoke(null, new Object[] { restArgs });
