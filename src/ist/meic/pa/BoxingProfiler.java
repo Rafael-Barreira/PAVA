@@ -21,10 +21,7 @@ public class BoxingProfiler {
 	//to that program
 	
 	static void memoize(CtClass ctClass, CtMethod[] ctMethod) throws ClassNotFoundException, NotFoundException, CannotCompileException {
-		CtMethod vInteger = ctMethod[0];
-		for(int i = 0; i < ctMethod.length; i++) {
-			//ctMethod[i].get
-		}
+
 	}
 	
 	static String methodParser(String classmethod, String methodname) {
@@ -46,19 +43,17 @@ public class BoxingProfiler {
 			ClassPool pool = ClassPool.getDefault();
 			CtClass ctClass = pool.getCtClass(args[0]);
 			
-			CtMethod[] methods = ctClass.getDeclaredMethods();
-			for(int i = 0; i < methods.length; i++) {
-				/*Indicates the function you are in and the attributes it receives*/
-				String pmethod = methods[i].getLongName();
-				
-			methods[i].instrument(
+			for(CtMethod methods: ctClass.getDeclaredMethods()) {
+				String pmethod = methods.getLongName();
+			
+				methods.instrument(
 			        new ExprEditor() {
 			            public void edit(MethodCall m)
 			                          throws CannotCompileException
 			            {
 			            	String autoBoxing = methodParser(m.getClassName(), m.getMethodName());
 			            	if(autoBoxing!=null){
-			                //System.out.println(pmethod + " " + m.getClassName() + "." + m.getMethodName() + " ");
+			            		//System.out.println(pmethod + " " + m.getClassName() + "." + m.getMethodName() + " ");
 			            		System.out.println(pmethod + " " + autoBoxing);
 			            		System.out.println("#######################");
 			            	}            
