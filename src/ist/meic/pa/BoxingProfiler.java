@@ -27,6 +27,16 @@ public class BoxingProfiler {
 		}
 	}
 	
+	static String methodParser(String classmethod, String methodname) {
+		
+		if(methodname.equals("valueOf")) {
+			return "boxed "+ classmethod;			
+		} else if(methodname.endsWith("Value")) {
+			return "unboxed " + classmethod;
+		} else return null;
+		
+	}
+	
 	public static void main (String[] args)throws NotFoundException, CannotCompileException, IOException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException {
 		if (args.length < 1) {
 			System.err.println("Usage: java Memoize <class>");
@@ -38,15 +48,20 @@ public class BoxingProfiler {
 			
 			CtMethod[] methods = ctClass.getDeclaredMethods();
 			for(int i = 0; i < methods.length; i++) {
-				/*Indicates the fucntion your in and the atribiutes it receives*/
-				System.out.println(methods[i].getLongName());
+				/*Indicates the function you are in and the attributes it receives*/
+				String pmethod = methods[i].getLongName();
+				
 			methods[i].instrument(
 			        new ExprEditor() {
 			            public void edit(MethodCall m)
 			                          throws CannotCompileException
 			            {
-			                System.out.println(m.getClassName() + "." + m.getMethodName() + " " + m.getSignature());
-			                System.out.println("#######################");
+			            	String autoBoxing = methodParser(m.getClassName(), m.getMethodName());
+			            	if(autoBoxing!=null){
+			                //System.out.println(pmethod + " " + m.getClassName() + "." + m.getMethodName() + " ");
+			            		System.out.println(pmethod + " " + autoBoxing);
+			            		System.out.println("#######################");
+			            	}            
 			            }
 			        });
 			}

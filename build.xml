@@ -1,4 +1,4 @@
-<project name="project" default="jar" basedir="D:\Stuff\workspace\PAVA\PAVA">
+<project name="project" default="jar" basedir=".">
 	<property name="src" location="src"/>
 	<property name="classes" location="classes"/>
 	
@@ -16,6 +16,8 @@
 	<target name="clean" description="clean up">
 		<!-- Delete the ${build} and ${dist} directory trees -->
 		<delete dir="${classes}"/>
+		<delete file="boxingProfiler.jar"/>
+		<delete file="Test.class"/>
 	</target>
 	
 	<target name="run">
@@ -26,8 +28,8 @@
 			</java>
 		</target>
 	
-	 <target name="jar">
-	        <jar destfile="Project1.jar" basedir="${classes}">
+	 <target name="jar" depends="compile">
+	        <jar destfile="boxingProfiler.jar" basedir="${classes}">
 	            <manifest>
 	                <attribute name="Main-Class" value="ist.meic.pa.BoxingProfiler"/>
 	            </manifest>
