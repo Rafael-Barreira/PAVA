@@ -72,9 +72,9 @@ public class BoxingProfiler {
 			            			CtField ctField = CtField.make("public static int " + counter + " =0;", ctClass);
 			    					ctClass.addField(ctField);
 			            		}		
-			            		System.out.println(m.getLineNumber());
+			            		System.out.println("Line Number: " + m.getLineNumber());
 			            		
-			            		methods.insertAt(m.getLineNumber(), counter+"++;");
+			            		methods.insertAt(m.getLineNumber() + 1, counter+"++;");
 			            		//int index = m.getLineNumber();
 			            		//methods.insertAt(index, counter+"++;");
 			            		//System.out.println("#######################");
