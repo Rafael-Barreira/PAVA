@@ -31,13 +31,13 @@ public class BoxingProfiler {
 			if(methodname.equals("valueOf")) {
 				String[] type = classmethod.split("[.]");
 				String counter = mainmethod + type[2] + "Boxing";
-				System.out.println(counter);
+				//System.out.println(counter);
 				return counter;
 				//return "boxed "+ classmethod;			
 			} else if(methodname.endsWith("Value")) {
 				String[] type = classmethod.split("[.]");
 				String counter = mainmethod + type[2] + "Unboxing";
-				System.out.println(counter);
+				//System.out.println(counter);
 				return counter;
 				//return "unboxed " + classmethod;
 			} else return null;
@@ -72,9 +72,12 @@ public class BoxingProfiler {
 			            			CtField ctField = CtField.make("public static int " + counter + " =0;", ctClass);
 			    					ctClass.addField(ctField);
 			            		}		
-			            		System.out.println("Line Number: " + m.getLineNumber());
+			            		//System.out.println("Line Number: " + m.getLineNumber());
 			            		
-			            		methods.insertAt(m.getLineNumber() + 1, counter+"++;");
+			            		//methods.insertAt(m.getLineNumber() + 1, counter+"++;");
+			            		m.replace("$_ = $proceed($$);;" + counter+"++;");
+			            		
+			            		
 			            		//int index = m.getLineNumber();
 			            		//methods.insertAt(index, counter+"++;");
 			            		//System.out.println("#######################");
