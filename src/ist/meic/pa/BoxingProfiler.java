@@ -4,6 +4,12 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -21,22 +27,18 @@ public class BoxingProfiler {
 	//the arguments that should be provided 
 	//to that program
 	
-	static void memoize(CtClass ctClass, CtMethod[] ctMethod) throws ClassNotFoundException, NotFoundException, CannotCompileException {
-
-	}
-	
-	static String methodParser(String classmethod, String methodname, String mainmethod) {
+	static String counterCreator(String classmethod, String methodname, String mainmethod) {
 		//System.out.println(classmethod + " " + methodname);
 		if(classmethod.startsWith("java.lang.")) {			
 			if(methodname.equals("valueOf")) {
 				String[] type = classmethod.split("[.]");
-				String counter = mainmethod + type[2] + "Boxing";
+				String counter = mainmethod+ "_" + type[2] + "_" + "boxed";
 				//System.out.println(counter);
 				return counter;
 				//return "boxed "+ classmethod;			
 			} else if(methodname.endsWith("Value")) {
 				String[] type = classmethod.split("[.]");
-				String counter = mainmethod + type[2] + "Unboxing";
+				String counter = mainmethod + "_" + type[2] + "_" + "unboxed";
 				//System.out.println(counter);
 				return counter;
 				//return "unboxed " + classmethod;
@@ -51,11 +53,13 @@ public class BoxingProfiler {
 		} else {
 			
 			ClassPool pool = ClassPool.getDefault();
-			CtClass ctClass = pool.getCtClass(args[0]);
+			final CtClass ctClass = pool.getCtClass(args[0]);
 			
-			for(CtMethod methods: ctClass.getDeclaredMethods()) {
-				String pmethod = methods.getName();
-				ArrayList<String> counterList = new ArrayList<String>();
+			for(final CtMethod methods: ctClass.getDeclaredMethods()) {
+				final String pmethod = methods.getName();
+				final ArrayList<String> counterList = new ArrayList<String>();
+				Map<String, String> hashMap = new HashMap<String, String>();
+				
 				
 				methods.instrument(
 			        new ExprEditor() {
@@ -63,7 +67,7 @@ public class BoxingProfiler {
 			                          throws CannotCompileException
 			            {
 			            	
-			            	String counter = methodParser(m.getClassName(), m.getMethodName(), pmethod);
+			            	String counter = counterCreator(m.getClassName(), m.getMethodName(), pmethod);
 			            	if(counter!=null){
 			            		//System.out.println(pmethod + " " + m.getClassName() + "." + m.getMethodName() + " ");
 			            		//System.out.println(pmethod + " " + autoBoxing);
@@ -77,18 +81,51 @@ public class BoxingProfiler {
 			            		//methods.insertAt(m.getLineNumber() + 1, counter+"++;");
 			            		m.replace("$_ = $proceed($$);;" + counter+"++;");
 			            		
+			            		}
 			            		
+
 			            		//int index = m.getLineNumber();
 			            		//methods.insertAt(index, counter+"++;");
 			            		//System.out.println("#######################");
 			            	}            
-			            }
-			        });
+			            });
+				
+				String[] tokens;
+				String method;
+				String type;
+				String action;
+				String methodFullName;
+				String space=" ";
+				String key;
+				String insert1;
+				String insert2;
+				
+				
 				for(String c : counterList) {
 					//methods.insertBefore("int " + c + "=0;"+"System.out.println(\""+ c +": \" + "+ c +");");
 					//CtField cc = new CtField(CtClass.intType, c, ctClass);
 					//ctClass.addField(cc, "0");
-					ctClass.getDeclaredMethod("main").insertAfter("System.out.println(\""+ c +": \" + "+ c +");");
+					
+					tokens = c.split("[_]");
+					method = tokens[0];
+					type = "java.lang."+tokens[1];
+					action = tokens[2];
+					methodFullName=ctClass.getDeclaredMethod(method).getLongName();
+					//sortby method, sortby type, sortby action
+					
+					key= methodFullName+space+type+space+action;
+					insert1= methodFullName + space + action + space;
+					insert2=space+type;
+					hashMap.put(key, insert1 + insert2);
+					ctClass.getDeclaredMethod("main").insertAfter("System.out.println(\""+ methodFullName + space + action + space + "\" + "+ c +" + \""+space+type+"\");");	
+				}
+				//DOESNT ORDER MY ALPHABETICAL ORDER
+				//Map reverseOrderedMap = new TreeMap(Collections.reverseOrder());
+				Map<String, String> treeMap = new TreeMap<String, String>(hashMap);
+				
+				
+				for (Map.Entry<String, String> entry : treeMap.entrySet()) {
+					System.out.println(entry.getValue());
 				}
 			}
 			
