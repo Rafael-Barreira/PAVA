@@ -3,7 +3,7 @@ package ist.meic.pa;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -35,25 +35,21 @@ public class BoxingProfiler {
 				else if(methodname.startsWith("boolean") && classmethod.endsWith("Boolean")){
 					String[] type = classmethod.split("[.]");
 					String counter = mainmethod + "_" + type[2] + "_" + "unboxed";
-					//System.out.println(counter);
 					return counter;
 				}
 				else if(methodname.startsWith("byte") && classmethod.endsWith("Byte")){
 					String[] type = classmethod.split("[.]");
 					String counter = mainmethod + "_" + type[2] + "_" + "unboxed";
-					//System.out.println(counter);
 					return counter;
 				}
 				else if(methodname.startsWith("char") && classmethod.endsWith("Character")){
 					String[] type = classmethod.split("[.]");
 					String counter = mainmethod + "_" + type[2] + "_" + "unboxed";
-					//System.out.println(counter);
 					return counter;
 				}
 				else if(methodname.startsWith("float") && classmethod.endsWith("Float")){
 					String[] type = classmethod.split("[.]");
 					String counter = mainmethod + "_" + type[2] + "_" + "unboxed";
-					//System.out.println(counter);
 					return counter;
 				}
 				else if(methodname.startsWith("long") && classmethod.endsWith("Long")){
@@ -84,11 +80,13 @@ public class BoxingProfiler {
 			
 			ClassPool pool = ClassPool.getDefault();
 			final CtClass ctClass = pool.getCtClass(args[0]);
-			final TreeSet<String> counterList = new TreeSet<String>();
+			final TreeMap<String, CtMethod> counterList = new TreeMap<String, CtMethod>();
 			
 			for(final CtMethod methods: ctClass.getDeclaredMethods()) {
 				final String pmethod = methods.getName();
-				
+				//final CtClass[] pmethodType=methods.getParameterTypes();			
+				//System.out.println(pmethodType[0].getName());
+							
 				methods.instrument(
 			        new ExprEditor() {
 			            public void edit(MethodCall m)
@@ -96,8 +94,8 @@ public class BoxingProfiler {
 			            {
 			            	String counter = counterCreator(m.getClassName(), m.getMethodName(), pmethod);
 			            	if(counter!=null){
-			            		if(!counterList.contains(counter)) {
-			            			counterList.add(counter);
+			            		if(!counterList.containsKey(counter)) {
+			            			counterList.put(counter, methods);
 			            			CtField ctField = CtField.make("public static int " + counter + " =0;", ctClass);
 			    					ctClass.addField(ctField);
 			            		}
@@ -109,19 +107,17 @@ public class BoxingProfiler {
 			}
 			
 			String[] tokens;
-			String method;
 			String type;
 			String action;
 			String methodFullName;
 			String space=" ";			
 			
-			for(String c : counterList) {
+			for(String c : counterList.keySet()) {
 				
 				tokens = c.split("[_]");
-				method = tokens[0];
 				type = "java.lang."+tokens[1];
 				action = tokens[2];
-				methodFullName=ctClass.getDeclaredMethod(method).getLongName();
+				methodFullName=counterList.get(c).getLongName();
 				
 				ctClass.getDeclaredMethod("main").insertAfter(
 						"if("+ c +" != 0 ){"+
